@@ -4,7 +4,7 @@ import shlex
 import requests
 
 
-def coordinates():
+def coord():
 	'''
 	returns a list of latitude and longitude
 	coords of the device
@@ -13,7 +13,7 @@ def coordinates():
 
 	commands = "termux-location -p network"
 	args = shlex.split(commands)
-	process = subprocess.Popen(args, shell=True, stdout=sub>
+	process = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
 	output, err = process.communicate()
 	str_output = str(output)
 
@@ -29,12 +29,18 @@ def coordinates():
         	coords.append(long_ls[1])
 	return coords
 
+
 def resp(api_key, coordinates):
 	'''
 	returns the json resp of the weather
 	'''
-	
+	r = requests.get(f"https://api.darksky.net/forecast/{api_key}/{str(coordinates[0])},{str(coordinates[1])}?exclude=currently,minutely,hourly,alerts&time=timezone")
+	resp = r.json
+	return resp
 
+api = "5cb9e64607d450474038c39e6da27694"
+resp(api, coord())
+'''
 # create a function that
 # will parse a json obj
 # then notify the user
@@ -51,3 +57,4 @@ elif snow in str_smpl:
 	s = re.findall(snow, str_smpl)
         if r[1]:
                 print("it will snow tomorrow")
+'''
