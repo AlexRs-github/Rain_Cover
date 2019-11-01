@@ -2,7 +2,7 @@ import re
 import subprocess
 import shlex
 import requests
-
+import sys
 
 def coord():
 	'''
@@ -27,6 +27,9 @@ def coord():
         	long_ls = long.split(" ")
         	coords.append(lat_ls[1])
         	coords.append(long_ls[1])
+	else:
+		print("Could not find precipType!\nExiting...")
+		sys.exit()
 	return coords
 
 
@@ -34,27 +37,31 @@ def resp(api_key, coordinates):
 	'''
 	returns the json resp of the weather
 	'''
-	r = requests.get(f"https://api.darksky.net/forecast/{api_key}/{str(coordinates[0])},{str(coordinates[1])}?exclude=currently,minutely,hourly,alerts&time=timezone")
-	resp = r.json
-	return resp
+	r = requests.get(f"https://api.darksky.net/forecast/{api_key}/{str(coordinates[0])},{str(coordinates[1])}?exclude=currently,minutely,hourly,alerts&time=timezone").text
+	return r
 
-api = "5cb9e64607d450474038c39e6da27694"
-resp(api, coord())
-'''
-# create a function that
-# will parse a json obj
-# then notify the user
-str_smpl = str(smpl)
 
-rain = '"precipType":"rain"'
-snow = '"precipType":"snow"'
+def notify(json):
+	'''
+	parses text in json format
+	then displays a toast message
+	'''
+	str_smpl = str(json)
+	rain = '"precipType":"rain"'
+	snow = '"precipType":"snow"'
 
-if rain in str_smpl:
-	r = re.findall(rain, str_smpl)
-	if r[1]:
-		print("it will rain tomorrow")
-elif snow in str_smpl:
-	s = re.findall(snow, str_smpl)
-        if r[1]:
-                print("it will snow tomorrow")
-'''
+	if rain in str_smpl:
+		r = re.findall(rain, str_smpl)
+		if r[1]:
+			r_args = shlex.split("termux-toast It will rain tomorrow! Put the cover on the car!")
+			subprocess.run(r_args)
+	elif snow in str_smpl:
+		s = re.findall(snow, str_smpl)
+		if s[1]:
+			s_args = shlex.split("termux-toast It will snow tomorrow! Put the cover on the car!")
+			subprocess.run(s_args)
+	else:
+		print("No precipitation tomorrow")
+
+api = ""
+notify(resp(api, coord()))
