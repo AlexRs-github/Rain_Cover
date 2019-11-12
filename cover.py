@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/env python
-import re
 import subprocess
 import shlex
 import requests
@@ -18,23 +17,18 @@ def coord():
     args = shlex.split(commands)
     process = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
     output, err = process.communicate()
-    str_output = str(output)
-
-    y = r'"latitude":\s*(\-?\d+(\.\d+)?)'
-    x = r'"longitude":\s*(\-?\d+(\.\d+)?)'
-
-    if "latitude" and "longitude" in str_output:
-        lat = re.search(y, str_output).group(0)
-        long = re.search(x, str_output).group(0)
-        lat_ls = lat.split(" ")
-        long_ls = long.split(" ")
-        coords.append(lat_ls[1])
-        coords.append(long_ls[1])
+    json_output = str(output)
+    if json_output is not None or json_output == "b''":
+        json_1 = json_output.replace("b\'", "")
+        json_2 = json_1.replace("\\n  ", "")
+        json_3 = json_2.replace("\\n}\\n'", "}")
+        data = json.loads(json_3)
+        coords.append(str(data["latitude"]))
+        coords.append(str(data["longitude"]))
+        return coords
     else:
-        print("Could not find location!\nExiting...")
+        print("Could not get location!\nExiting...")
         sys.exit()
-    return coords
-
 
 def resp(api_key, coordinates):
     '''
