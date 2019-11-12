@@ -30,6 +30,7 @@ def coord():
         print("Could not get location!\nExiting...")
         sys.exit()
 
+
 def resp(api_key, coordinates):
     '''
     returns the json resp of the weather
@@ -50,10 +51,12 @@ def notify(json_data):
     precip = str(data["daily"]["data"][1]["precipType"])
 
     if precip == "rain":
-        r_args = shlex.split("termux-toast It will rain tomorrow! Put the cover on the car!")
+        r_args = shlex.split(
+            "termux-toast It will rain tomorrow! Put the cover on the car!")
         subprocess.run(r_args)
     elif precip == "snow":
-        s_args = shlex.split("termux-toast It will snow tomorrow! Put the cover on the car!")
+        s_args = shlex.split(
+            "termux-toast It will snow tomorrow! Put the cover on the car!")
         subprocess.run(s_args)
 
 
