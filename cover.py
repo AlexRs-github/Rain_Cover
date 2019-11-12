@@ -63,5 +63,5 @@ def notify(json_data):
         subprocess.run(s_args)
 
 
-api = """
+api = ""
 notify(resp(api, coord()))
