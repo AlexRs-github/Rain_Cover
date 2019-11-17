@@ -6,6 +6,24 @@ import sys
 import json
 
 
+def remove_all(orig, patts):
+    '''
+    Removes all of the patterns specified
+    in a list from the original str.
+
+    Keyword Arguments:
+    orig -- The original string you want
+            to have everythibg removed from
+
+    patts -- The list of patterns you want
+            to have removed from the
+            original string
+    '''
+    for pattern in patts:
+        orig = orig.replace(pattern, "")
+    return orig
+
+
 def coord():
     '''
     returns a list of latitude and longitude
@@ -19,17 +37,15 @@ def coord():
     output, err = process.communicate()
     json_output = str(output)
     if json_output is not None or json_output == "b''":
-        json_1 = json_output.replace("b\'", "")
-        json_2 = json_1.replace("\\n  ", "")
-        json_3 = json_2.replace("\\n}\\n'", "}")
-        data = json.loads(json_3)
+        patterns = ["b\'", "\\n  ", "\\n'", "\\n"]
+        json_str = remove_all(json_output, patterns)
+        data = json.loads(json_str)
         coords.append(str(data["latitude"]))
         coords.append(str(data["longitude"]))
         return coords
     else:
         print("Could not get location!\nExiting...")
         sys.exit()
-
 
 def resp(api_key, coordinates):
     '''
@@ -51,12 +67,10 @@ def notify(json_data):
     precip = str(data["daily"]["data"][1]["precipType"])
 
     if precip == "rain":
-        r_args = shlex.split(
-            "termux-toast It will rain tomorrow! Put the cover on the car!")
+        r_args = shlex.split("termux-toast It will rain tomorrow! Put the cover on the car!")
         subprocess.run(r_args)
     elif precip == "snow":
-        s_args = shlex.split(
-            "termux-toast It will snow tomorrow! Put the cover on the car!")
+        s_args = shlex.split("termux-toast It will snow tomorrow! Put the cover on the car!")
         subprocess.run(s_args)
 
 
